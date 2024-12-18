@@ -1,6 +1,6 @@
 package com.shuting.flowEdaLearn.entity;
 
-import com.shuting.flowEdaLearn.commons.PageRequest;
+import com.shuting.flowEdaLearn.commons.http.PageRequest;
 import lombok.Data;
 
 @Data

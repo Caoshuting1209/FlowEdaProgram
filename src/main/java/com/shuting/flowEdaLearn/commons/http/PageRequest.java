@@ -1,4 +1,4 @@
-package com.shuting.flowEdaLearn.commons;
+package com.shuting.flowEdaLearn.commons.http;
 
 import lombok.Data;
 
