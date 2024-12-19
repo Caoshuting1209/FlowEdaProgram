@@ -17,22 +17,29 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 public class FlowExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleFLowExceptions(Exception ex, WebRequest request) throws Exception {
+    public ResponseEntity<Object> handleFLowExceptions(Exception ex, WebRequest request)
+            throws Exception {
         HttpHeaders headers = new HttpHeaders();
         if (ex instanceof FlowException) {
             FlowException e = (FlowException) ex;
             return handleExceptionInternal(e, null, headers, e.getHttpStatus(), request);
         }
-        return handleExceptionInternal(ex, null, headers, HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return handleExceptionInternal(
+                ex, null, headers, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex,
+            Object body,
+            HttpHeaders headers,
+            HttpStatusCode statusCode,
+            WebRequest request) {
         ApiError apiError = new ApiError();
         apiError.setError(ApiError.INTERNAL_ERROR);
         apiError.setMessage(ex.getMessage());
         apiError.setCode(statusCode.value());
-        apiError.setPath(getURI(request)) ;
+        apiError.setPath(getURI(request));
         body = apiError;
         log.error("Catch error: {}", apiError.getMessage());
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);

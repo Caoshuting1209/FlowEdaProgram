@@ -11,5 +11,4 @@ public class FlowEdaLearnApplication {
     public static void main(String[] args) {
         SpringApplication.run(FlowEdaLearnApplication.class, args);
     }
-
 }

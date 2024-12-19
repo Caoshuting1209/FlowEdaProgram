@@ -9,19 +9,21 @@ import com.shuting.flowEdaLearn.validation.UpdateGroup;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-
 import java.util.Date;
 
 @Data
-@TableName ("flow_eda")
+@TableName("eda_flow")
 public class Flow {
-    @NotNull(message = "id can't be null", groups = {UpdateGroup.class, DeleteGroup.class, PostGroup.class})
+    @NotNull(
+            groups = {UpdateGroup.class, DeleteGroup.class, PostGroup.class})
     private String id;
 
-    @NotNull(message = "name can't be null", groups = {UpdateGroup.class, PostGroup.class})
+    @NotNull(
+            groups = {UpdateGroup.class, PostGroup.class})
     private String name;
 
-    @NotNull(message = "description can't be null", groups = {UpdateGroup.class, PostGroup.class})
+    @NotNull(
+            groups = {UpdateGroup.class, PostGroup.class})
     private String description;
 
     private Status status;

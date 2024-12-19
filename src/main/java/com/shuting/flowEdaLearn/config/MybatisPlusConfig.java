@@ -9,10 +9,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MybatisPlusConfig {
     @Bean
-    //分页插件
+    // 分页插件
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor()); // 对于 Spring Boot 3，使用 PaginationInnerInterceptor
+        interceptor.addInnerInterceptor(
+                new PaginationInnerInterceptor()); // 对于 Spring Boot 3，使用 PaginationInnerInterceptor
         return interceptor;
     }
 }

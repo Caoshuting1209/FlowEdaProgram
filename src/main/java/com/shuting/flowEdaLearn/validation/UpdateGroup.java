@@ -1,4 +1,3 @@
 package com.shuting.flowEdaLearn.validation;
 
-public interface UpdateGroup {
-}
+public interface UpdateGroup {}

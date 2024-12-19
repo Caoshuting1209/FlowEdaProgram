@@ -1,8 +1,8 @@
 package com.shuting.flowEdaLearn.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.shuting.flowEdaLearn.entity.Flow;
+import com.shuting.flowEdaLearn.entity.NodeType;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FlowMapper extends BaseMapper<Flow> {}
+public interface NodeTypeMapper extends BaseMapper<NodeType> {}
