@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName(value ="eda_flow_node_type_param")
+@TableName(value = "eda_flow_node_type_param")
 public class NodeTypeParams {
     private Long id;
     private Long typeId;

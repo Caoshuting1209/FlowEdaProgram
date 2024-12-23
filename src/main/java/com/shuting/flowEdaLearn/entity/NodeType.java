@@ -1,12 +1,14 @@
 package com.shuting.flowEdaLearn.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
-@TableName("eda_flow_node_type")
+@TableName(value = "eda_flow_node_type")
 public class NodeType {
     private Long id;
     private String type;

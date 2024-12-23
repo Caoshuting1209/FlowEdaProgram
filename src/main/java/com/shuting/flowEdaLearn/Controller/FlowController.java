@@ -18,22 +18,22 @@ public class FlowController {
     @Autowired private FlowService flowService;
 
     @GetMapping("/flow")
-    public Result<IPage<Flow>> listFlow(@RequestBody FlowRequest flowRequest) {
+    public Result<IPage<Flow>> listFlow(FlowRequest flowRequest) {
         return flowService.listFlow(flowRequest);
     }
 
     @PostMapping("/flow")
-    public Result<Flow> postFlow(@Validated({PostGroup.class})  @RequestBody Flow flow) {
+    public Result<Flow> postFlow(@Validated({PostGroup.class}) Flow flow) {
         return flowService.postFlow(flow);
     }
 
     @PutMapping("/flow")
-    public Result<Flow> updateFlow(@Validated({UpdateGroup.class})  @RequestBody Flow flow) {
+    public Result<Flow> updateFlow(@Validated({UpdateGroup.class}) Flow flow) {
         return flowService.updateFlow(flow);
     }
 
     @DeleteMapping("/flow")
-    public Result<Flow> deleteFlow(@Validated({DeleteGroup.class})  @RequestBody Flow flow) {
+    public Result<Flow> deleteFlow(@Validated({DeleteGroup.class}) Flow flow) {
         return flowService.deleteFlow(flow);
     }
 }

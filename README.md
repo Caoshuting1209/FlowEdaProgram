@@ -151,7 +151,7 @@ public IPage<Flow> listFlow(FlowRequest flowRequest) {
   @TableName("eda_flow")
   public class Flow {
       @NotNull(
-        //这里可以返回校验失败的具体参数信息，但必须自定义error捕捉方法，否则只会返回给客户端默认的校验失败信息，而不会包含具体参数
+        //这里可以返回校验失败的具体参数信息，但必须自定义对应的exceptionHandler，否则只会返回给客户端默认的校验失败信息，而不会包含具体参数
         			message = "",
         //这个语句表示，在以下两个组中需要校验id是否为空
               groups = {DeleteGroup.class, PostGroup.class})
@@ -171,10 +171,39 @@ public IPage<Flow> listFlow(FlowRequest flowRequest) {
             return flowService.deleteFlow(flow);
         }
     }
-  
   ```
-
   
 
+###### 6.3 自定义typeHandler
 
+> 这部分目前还没有实现配置，后续更新
+
+###### 6.4 用java方法代替手写SQL
+
+> 当前配置中，手写SQL的方法可以在postman测试通过，但java方法代替SQL的方法会报错，报错信息：错误的SQL语句。可能是由于数据库中字段的json属性和项目实体类中的字段Map<String, Object>属性交互失败导致，有待排查
+
+```java
+//手写SQL的写法如下
+@Repository
+public interface NodeDataMapper extends BaseMapper<NodeData> {
+    @Select("SELECT * FROM eda_flow_node_data WHERE flow_id = #{flowId}")
+    public List<NodeData> findByFlowId(String flowId);
+}
+
+//用java方法代替写法如下
+@Repository
+//mapper层只需要继承增删改查功能，不需要手写SQL语句
+public interface NodeDataMapper extends BaseMapper<NodeData> {}
+
+//这里在service层用QueryWrapper封装查询条件，用BaseMapper自带的功能实现业务逻辑
+private List<NodeData> findByFlowId(String flowId) {
+        QueryWrapper<NodeData> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("flow_id", flowId);
+        return nodeDataMapper.selectList(queryWrapper);
+}
+ public List<NodeData> getNodeData(String flowId) {
+        return findByFlowId(flowId);
+}
+
+```
 

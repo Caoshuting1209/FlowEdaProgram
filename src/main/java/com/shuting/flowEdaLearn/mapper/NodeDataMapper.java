@@ -1,10 +1,10 @@
 package com.shuting.flowEdaLearn.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.shuting.flowEdaLearn.commons.http.Result;
 import com.shuting.flowEdaLearn.entity.NodeData;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Select;
-import org.bson.Document;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,5 +12,12 @@ import java.util.List;
 @Repository
 public interface NodeDataMapper extends BaseMapper<NodeData> {
     @Select("SELECT * FROM eda_flow_node_data WHERE flow_id = #{flowId}")
-    public List<NodeData> findByFlowId(String flowId);
+    List<NodeData> findByFlowId(String flowId);
+
+    @Delete("DELETE FROM eda_flow_node_data WHERE flow_id = #{flowId}")
+    void deleteByFlowId(String flowId);
+
+    @Select("SELECT * FROM eda_flow_node_data WHERE flow_id = #{flowId} AND version = #{version}")
+    List<NodeData> findByFlowIdAndVersion(String flowId, String version);
+
 }

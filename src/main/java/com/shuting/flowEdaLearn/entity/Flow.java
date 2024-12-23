@@ -14,16 +14,13 @@ import java.util.Date;
 @Data
 @TableName("eda_flow")
 public class Flow {
-    @NotNull(
-            groups = {UpdateGroup.class, DeleteGroup.class, PostGroup.class})
+    @NotNull(groups = {UpdateGroup.class, DeleteGroup.class, PostGroup.class})
     private String id;
 
-    @NotNull(
-            groups = {UpdateGroup.class, PostGroup.class})
+    @NotNull(groups = {UpdateGroup.class, PostGroup.class})
     private String name;
 
-    @NotNull(
-            groups = {UpdateGroup.class, PostGroup.class})
+    @NotNull(groups = {UpdateGroup.class, PostGroup.class})
     private String description;
 
     private Status status;
