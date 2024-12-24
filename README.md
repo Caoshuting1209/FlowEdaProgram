@@ -174,13 +174,105 @@ public IPage<Flow> listFlow(FlowRequest flowRequest) {
   ```
   
 
-###### 6.3 自定义typeHandler
+###### 6.3 数据库json格式的数据与javaObject的交互
 
-> 这部分目前还没有实现配置，后续更新
+>  以NodeType实体类为例，其中的字段params类型为List<NodeTypeParams>
+
+- 建立NodeTypeParams实体类
+
+- 建立数据类型处理的service层，采用ObjectMapper的writeValueAsString()和readValue()方法来进行数据转换
+
+  ```java
+  @Service
+  public class DatabaseTypeService {
+      private SqlSessionFactory sqlSessionFactory;
+      private ObjectMapper objectMapper;
+  
+      public DatabaseTypeService(SqlSessionFactory sqlSessionFactory) {
+          this.sqlSessionFactory = sqlSessionFactory;
+          this.objectMapper = new ObjectMapper(); 
+      }
+  
+      public void saveNodeDataToDatabase(NodeType nodeType) {
+          SqlSession session = sqlSessionFactory.openSession();
+          try {
+            //将List<NodeTypeParas>类型转化为String
+              String paramsJson = objectMapper.writeValueAsString(nodeType.getParams());
+              NodeTypeMapper mapper = session.getMapper(NodeTypeMapper.class);
+            //将对应的数据更新到数据库
+            //注意这里需要再mapper层定义@Update方法insertParams
+              mapper.insertParams(nodeType.getId(), paramsJson);
+              session.commit();
+          } catch (JsonProcessingException e) {
+              session.rollback();
+              throw new RuntimeException("Error converting NodeDataParams to JSON", e);
+          } finally {
+              session.close();
+          }
+      }
+  
+      public void getNodeTypeFromDatabase(NodeType nodeType) {
+          SqlSession session = sqlSessionFactory.openSession();
+          try {
+              NodeTypeMapper mapper = session.getMapper(NodeTypeMapper.class);
+            //从数据库中读取该条记录的params数据
+            //注意在mapper层的方法语句为："SELECT params FROM table_name WHERE id = #{id}"
+              String paramsJson = mapper.findById(nodeType.getId());
+            //将params数据转化为List<NodeTypeParams>格式，以便读取
+              if (paramsJson != null) {
+                  List<NodeTypeParams> list = objectMapper.readValue(paramsJson, new TypeReference<>(){});
+                  nodeType.setParams(list);
+              }
+              session.commit();
+          } catch(Exception e){
+              throw new RuntimeException("Error parsing JSON from database", e);
+          }finally{
+              session.close();
+          }
+      }
+  }
+  ```
+
+- 在对应的业务层调用数据转换方法
+
+  ```java
+  @Service
+  @Slf4j
+  public class NodeTypeService {
+      private static final List<String> MENU = Arrays.asList("基础", "运算", "解析", "网络", "数据库", "子流程");
+      @Autowired private NodeTypeMapper nodeTypeMapper;
+      @Autowired private NodeTypeParamsMapper nodeTypeParamsMapper;
+      @Autowired private DatabaseTypeService databaseTypeService;
+  
+      public Map<String, Object> getAllNodeTypes() {
+          Map<String, Object> result = new HashMap<String, Object>();
+          List<NodeType> list = nodeTypeMapper.selectList(null);
+        //以下语句用于读取NodeType类型
+          for(NodeType nodeType : list) {
+              databaseTypeService.getNodeTypeFromDatabase(nodeType);
+          }
+         	list.forEach(this::mergeNodeType);
+          MENU.forEach(
+                  k ->
+                          result.put(
+                                  k, list.stream().filter(nodeType -> k.equals(nodeType.getMenu()))));
+          return result;
+      }
+  
+     private void mergeNodeType(NodeType nodeType) {
+         List<NodeTypeParams> list = nodeTypeParamsMapper.findByTypeId(nodeType.getId());
+         nodeType.setParams(list);
+       //以下语句用于把nodeType数据写入数据库
+         databaseTypeService.saveNodeDataToDatabase(nodeType);
+     }
+  
+  ```
+
+  
 
 ###### 6.4 用java方法代替手写SQL
 
-> 当前配置中，手写SQL的方法可以在postman测试通过，但java方法代替SQL的方法会报错，报错信息：错误的SQL语句。可能是由于数据库中字段的json属性和项目实体类中的字段Map<String, Object>属性交互失败导致，有待排查
+> 当前配置中，手写SQL的方法可以在postman测试通过，但java方法代替SQL的方法会报错，报错信息：错误的SQL语句。
 
 ```java
 //手写SQL的写法如下

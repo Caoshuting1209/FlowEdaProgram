@@ -2,9 +2,10 @@ package com.shuting.flowEdaLearn.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 
+
 import lombok.Data;
 
-import javax.swing.text.Document;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -17,8 +18,8 @@ public class NodeData {
     private String top;
     private String left;
     private String remark;
-    private Map<String, Object> params;
-    private Map<String, Object> payload;
+    private List<Map<String, String>> params;
+    private List<Map<String, String>> payload;
     private String from;
     private String to;
     private String version;

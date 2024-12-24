@@ -20,11 +20,15 @@ public class NodeTypeService {
     private static final List<String> MENU = Arrays.asList("基础", "运算", "解析", "网络", "数据库", "子流程");
     @Autowired private NodeTypeMapper nodeTypeMapper;
     @Autowired private NodeTypeParamsMapper nodeTypeParamsMapper;
+    @Autowired private DatabaseTypeService databaseTypeService;
 
     public Map<String, Object> getAllNodeTypes() {
         Map<String, Object> result = new HashMap<String, Object>();
         List<NodeType> list = nodeTypeMapper.selectList(null);
-        list.forEach(this::mergeNodeType);
+        for(NodeType nodeType : list) {
+            databaseTypeService.getNodeTypeFromDatabase(nodeType);
+        }
+//        list.forEach(this::mergeNodeType);
         MENU.forEach(
                 k ->
                         result.put(
@@ -32,12 +36,14 @@ public class NodeTypeService {
         return result;
     }
 
-    private void mergeNodeType(NodeType nodeType) {
-        List<NodeTypeParams> list = nodeTypeParamsMapper.findByTypeId(nodeType.getId());
-        nodeType.setParams(list);
-    }
+    //以下代码只在初始化NodeType的params时运行一次，之后的数据读取不需要用到
+//    private void mergeNodeType(NodeType nodeType) {
+//        List<NodeTypeParams> list = nodeTypeParamsMapper.findByTypeId(nodeType.getId());
+//        nodeType.setParams(list);
+//        databaseTypeService.saveNodeDataToDatabase(nodeType);
+//    }
 
-     //当前这种方法无法在postman正常实现查询功能，但在mapper层用sql注解可以正常查询，可能是数据库格式和java对象格式转换的问题
+
 //    private List<NodeTypeParams> findByTypeId(Long typeId) {
 //        QueryWrapper<NodeTypeParams> queryWrapper = new QueryWrapper<>();
 //        queryWrapper.eq("type_id", typeId);

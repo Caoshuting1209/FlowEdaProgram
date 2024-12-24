@@ -1,5 +1,7 @@
 package com.shuting.flowEdaLearn.service;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.shuting.flowEdaLearn.commons.exception.InvalidParameterException;
 import com.shuting.flowEdaLearn.commons.exception.MissingPropertyException;
@@ -10,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -30,7 +35,9 @@ public class NodeDataService {
     }
 
     public List<NodeData> getNodeData(String flowId) {
-        return nodeDataMapper.findByFlowId(flowId);
+        List<NodeData> list = nodeDataMapper.findByFlowId(flowId);
+        setJson(list);
+        return list;
     }
 
     public void setVersion(String version, List<NodeData> list) {
@@ -47,10 +54,14 @@ public class NodeDataService {
     }
 
     public List<NodeData> getVersion(String flowId, String version) {
+        List<NodeData> list;
         if (version != null) {
-            return nodeDataMapper.findByFlowIdAndVersion(flowId, version);
+            list = nodeDataMapper.findByFlowIdAndVersion(flowId, version);
+        }else{
+            list = nodeDataMapper.findByFlowId(flowId);
         }
-        return nodeDataMapper.findByFlowId(flowId);
+        setJson(list);
+        return list;
     }
 
     private void check(List<NodeData> list) {
@@ -66,6 +77,13 @@ public class NodeDataService {
                 log.error("flow_id is null");
                 throw new MissingPropertyException("flow_id");
             }
+        }
+    }
+
+    private void setJson(List<NodeData> list) {
+        for(NodeData nodeData : list){
+            String params = nodeDataMapper.findParamsById(nodeData.getId());
+            String payload = nodeDataMapper.findPayloadById(nodeData.getId());
         }
     }
 

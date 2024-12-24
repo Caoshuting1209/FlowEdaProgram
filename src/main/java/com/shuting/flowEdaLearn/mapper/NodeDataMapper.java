@@ -20,4 +20,10 @@ public interface NodeDataMapper extends BaseMapper<NodeData> {
     @Select("SELECT * FROM eda_flow_node_data WHERE flow_id = #{flowId} AND version = #{version}")
     List<NodeData> findByFlowIdAndVersion(String flowId, String version);
 
+    @Select("SELECT params FROM eda_flow_node_data WHERE id = #{id}")
+    String findParamsById(String id);
+
+    @Select("SELECT payload FROM eda_flow_node_data WHERE id = #{id}")
+    String findPayloadById(String id);
+
 }
