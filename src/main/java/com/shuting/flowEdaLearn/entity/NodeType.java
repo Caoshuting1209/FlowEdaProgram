@@ -1,16 +1,15 @@
 package com.shuting.flowEdaLearn.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import com.shuting.flowEdaLearn.handler.typeHandler.NodeTypeParamsTypeHandler;
 import lombok.Data;
-import lombok.ToString;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
-@TableName(value = "eda_flow_node_type")
-@ToString
+@TableName(value = "eda_flow_node_type", autoResultMap = true)
 public class NodeType {
     private Long id;
     private String type;
@@ -19,5 +18,7 @@ public class NodeType {
     private String description;
     private String background;
     private String svg;
+
+    @TableField(typeHandler = NodeTypeParamsTypeHandler.class)
     private List<NodeTypeParams> params;
 }

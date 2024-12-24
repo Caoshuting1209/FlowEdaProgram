@@ -25,5 +25,4 @@ public interface NodeDataMapper extends BaseMapper<NodeData> {
 
     @Select("SELECT payload FROM eda_flow_node_data WHERE id = #{id}")
     String findPayloadById(String id);
-
 }

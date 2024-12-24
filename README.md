@@ -176,98 +176,138 @@ public IPage<Flow> listFlow(FlowRequest flowRequest) {
 
 ###### 6.3 数据库json格式的数据与javaObject的交互
 
->  以NodeType实体类为例，其中的字段params类型为List<NodeTypeParams>
+>  以NodeType实体类为例，其中的字段params类型为List<NodeTypeParams>，NodeTypeParams为自定义的实体类
 
-- 建立NodeTypeParams实体类
+- 引入jackson相关依赖
 
-- 建立数据类型处理的service层，采用ObjectMapper的writeValueAsString()和readValue()方法来进行数据转换
+  ```xml
+  <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.18.2</version>
+  </dependency>
+  <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.18.2</version>
+  </dependency>
+  ```
+
+- 自定义typeHandler，采用ObjectMapper的writeValueAsString()和readValue()方法来进行数据转换
 
   ```java
-  @Service
-  public class DatabaseTypeService {
-      private SqlSessionFactory sqlSessionFactory;
-      private ObjectMapper objectMapper;
+  //这是一个通用的typeHandler，其中List<NodeTypeParams>类型可以更改为其他需要的类型
+  public class NodeTypeParamsTypeHandler extends BaseTypeHandler<List<NodeTypeParams>> {
+      private static final ObjectMapper objectMapper = new ObjectMapper();
   
-      public DatabaseTypeService(SqlSessionFactory sqlSessionFactory) {
-          this.sqlSessionFactory = sqlSessionFactory;
-          this.objectMapper = new ObjectMapper(); 
-      }
-  
-      public void saveNodeDataToDatabase(NodeType nodeType) {
-          SqlSession session = sqlSessionFactory.openSession();
-          try {
-            //将List<NodeTypeParas>类型转化为String
-              String paramsJson = objectMapper.writeValueAsString(nodeType.getParams());
-              NodeTypeMapper mapper = session.getMapper(NodeTypeMapper.class);
-            //将对应的数据更新到数据库
-            //注意这里需要再mapper层定义@Update方法insertParams
-              mapper.insertParams(nodeType.getId(), paramsJson);
-              session.commit();
-          } catch (JsonProcessingException e) {
-              session.rollback();
-              throw new RuntimeException("Error converting NodeDataParams to JSON", e);
-          } finally {
-              session.close();
+      @Override
+      public void setNonNullParameter(
+              PreparedStatement ps, int i, List<NodeTypeParams> parameter, JdbcType jdbcType)
+              throws SQLException {
+          if (parameter == null) {
+              ps.setString(i, null);
+          }
+          if (parameter != null) {
+              try {
+                  ps.setString(i, objectMapper.writeValueAsString(parameter));
+              } catch (JsonProcessingException e) {
+                  throw new SQLException("Error converting parameter list to JSON string", e);
+              }
           }
       }
   
-      public void getNodeTypeFromDatabase(NodeType nodeType) {
-          SqlSession session = sqlSessionFactory.openSession();
+      @Override
+      public List<NodeTypeParams> getNullableResult(ResultSet rs, String columnName)
+              throws SQLException {
+          String json = rs.getString(columnName);
+          return parseJson(json);
+      }
+  
+      @Override
+      public List<NodeTypeParams> getNullableResult(ResultSet rs, int columnIndex)
+              throws SQLException {
+          String json = rs.getString(columnIndex);
+          return parseJson(json);
+      }
+  
+      @Override
+      public List<NodeTypeParams> getNullableResult(CallableStatement cs, int columnIndex)
+              throws SQLException {
+          String json = cs.getString(columnIndex);
+          return parseJson(json);
+      }
+  
+      private List<NodeTypeParams> parseJson(String json) throws SQLException {
           try {
-              NodeTypeMapper mapper = session.getMapper(NodeTypeMapper.class);
-            //从数据库中读取该条记录的params数据
-            //注意在mapper层的方法语句为："SELECT params FROM table_name WHERE id = #{id}"
-              String paramsJson = mapper.findById(nodeType.getId());
-            //将params数据转化为List<NodeTypeParams>格式，以便读取
-              if (paramsJson != null) {
-                  List<NodeTypeParams> list = objectMapper.readValue(paramsJson, new TypeReference<>(){});
-                  nodeType.setParams(list);
+              if (json != null && !json.isEmpty()) {
+                  return objectMapper.readValue(json, new TypeReference<>() {});
               }
-              session.commit();
-          } catch(Exception e){
-              throw new RuntimeException("Error parsing JSON from database", e);
-          }finally{
-              session.close();
+              return null;
+          } catch (JsonProcessingException e) {
+              throw new SQLException("Error parsing JSON string to parameter list", e);
           }
       }
   }
+  
   ```
 
+- 在NodeType实体类中对相应字段进行注解
+
+  ```java
+  @Data
+  //注意这里必须标注autoResultMap = true
+  @TableName(value = "eda_flow_node_type", autoResultMap = true)
+  public class NodeType {
+      private Long id;
+      private String type;
+      private String typeName;
+      private String menu;
+      private String description;
+      private String background;
+      private String svg;
+  //这里需要标注typeHandler的类型
+      @TableField(typeHandler = NodeTypeParamsTypeHandler.class)
+      private List<NodeTypeParams> params;
+  }
+  
+  ```
+  
 - 在对应的业务层调用数据转换方法
 
   ```java
   @Service
   @Slf4j
-  public class NodeTypeService {
+  //实现类扩展ServiceImpl<NodeTypeMapper, NodeType>，可简化数据存取过程
+  public class NodeTypeService extends ServiceImpl<NodeTypeMapper, NodeType> {
       private static final List<String> MENU = Arrays.asList("基础", "运算", "解析", "网络", "数据库", "子流程");
       @Autowired private NodeTypeMapper nodeTypeMapper;
       @Autowired private NodeTypeParamsMapper nodeTypeParamsMapper;
-      @Autowired private DatabaseTypeService databaseTypeService;
   
       public Map<String, Object> getAllNodeTypes() {
           Map<String, Object> result = new HashMap<String, Object>();
+        //这时候读取到的list已经包含了json数据转化过的字段数据
           List<NodeType> list = nodeTypeMapper.selectList(null);
-        //以下语句用于读取NodeType类型
-          for(NodeType nodeType : list) {
-              databaseTypeService.getNodeTypeFromDatabase(nodeType);
-          }
-         	list.forEach(this::mergeNodeType);
+        //以下语句只有NodeType表初始化时需要使用
+          list.forEach(this::mergeNodeType);
           MENU.forEach(
-                  k ->
-                          result.put(
-                                  k, list.stream().filter(nodeType -> k.equals(nodeType.getMenu()))));
+                  k -> result.put(k, list.stream().filter(nodeType -> k.equals(nodeType.getMenu()))));
           return result;
       }
   
-     private void mergeNodeType(NodeType nodeType) {
-         List<NodeTypeParams> list = nodeTypeParamsMapper.findByTypeId(nodeType.getId());
-         nodeType.setParams(list);
-       //以下语句用于把nodeType数据写入数据库
-         databaseTypeService.saveNodeDataToDatabase(nodeType);
-     }
+       //以下代码只在初始化NodeType的params时运行一次，之后的数据读取不需要用到
+          private void mergeNodeType(NodeType nodeType) {
+            //找到每个type下所有的TypeParams
+              List<NodeTypeParams> list = nodeTypeParamsMapper.findByTypeId(nodeType.getId());
+            //将这个list赋值给该nodeType数据的params字段
+              nodeType.setParams(list);
+            //将结果存入数据库（这里自定义的typeHandler已经在起作用了），如果主键存在，则更新，如果不存在，则存入数据
+              this.saveOrUpdate(nodeType);
+          }
+  }
+  
   
   ```
-
+  
   
 
 ###### 6.4 用java方法代替手写SQL
@@ -298,4 +338,6 @@ private List<NodeData> findByFlowId(String flowId) {
 }
 
 ```
+
+
 
