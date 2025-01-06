@@ -2,17 +2,22 @@ server:
   port: 8081
 
 spring:
-  application: name=flow-eda-learn
+  application:
+    name: flowEdaLearn
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/flow_eda?useSSL=false&serverTimezone=GMT%2b8
     username: shuting
     password: 123456
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23liHthNDpsR6Efdi4
+            client-secret: ffd78c1469c885b8da5247a06c9becf9e09a6767
 
 mybatis-plus:
-  mapper-locations: classpath:/mapper/*.xml
   type-aliases-package: com.shuting.flowEdaLearn.entity
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-

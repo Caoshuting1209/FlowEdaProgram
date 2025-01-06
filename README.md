@@ -2,11 +2,33 @@
 
 ##### 1. 新建项目，注入依赖，配置
 
-##### 2. 定义实体类和接口
+##### 2. 定义Flow实体类和接口
 
 ##### 3. 交互数据库，在service层实现增删改查功能
 
 ##### 4. 全局异常处理
+
+###### 4.1 建立一个统一的错误信息类
+
+```java
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ApiError {
+    public static final String INVALID_PARAMETER = "Invalid parameter";
+    public static final String INTERNAL_ERROR = "Internal error";
+    public static final String RESOURCE_NOT_FOUND = "Resource not found";
+    public static final String MISS_PROPERTY_IN_BODY = "Missing property in request body";
+    public static final String INVALID_STATUS = "Invalid status";
+
+    private String error;
+    private String message;
+    private Integer code;
+    private String path;
+}
+```
+
+###### 4.2 建立全局异常类
 
 ```java
 //全局异常类
@@ -23,14 +45,23 @@ public class FlowException extends RuntimeException {
         this.httpStatus = HttpStatus.BAD_REQUEST;
     }
 }
+```
+
+###### 4.3 按需求建立异常类的拓展类
+
+```java
 //分模块异常类拓展
 public class InvalidParameterException extends FlowException {
     public InvalidParameterException(String message) {
         super(ApiError.INVALID_PARAMETER, message);
     }
 }
+```
 
-//异常处理器
+###### 4.4 自定义异常处理器
+
+```java
+//自定义异常处理器
 @ControllerAdvice
 @Slf4j
 public class FlowExceptionHandler extends ResponseEntityExceptionHandler {
@@ -56,8 +87,8 @@ public class FlowExceptionHandler extends ResponseEntityExceptionHandler {
         body = apiError;
       //后端日志
         log.error("Catch error: {}", apiError.getMessage());
-      //body的内容即为前端报错信息
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);
+      //body的内容即为前端报错信息（ApiError类，包含error，message，code，path参数）
     }
 
     private String getURI(WebRequest request) {
@@ -69,11 +100,31 @@ public class FlowExceptionHandler extends ResponseEntityExceptionHandler {
 }
 ```
 
+###### 4.5 配置异常处理器
+
+```java
+@Configuration
+public class SpringWebAutoConfig implements WebMvcConfigurer {
+  @Bean
+  public FlowExceptionHandler flowExceptionHandler() {
+    return new FlowExceptionHandler();
+  }
+}
+```
+
+
+
 ##### 5. 完善流程节点业务
 
 ###### 5.1 节点类型（NodeType）接口定义
 
+> 通过NodeType的id确定需要传入的params种类
+
 ###### 5.2 节点数据（NodeData）接口定义
+
+> 当新建一条NodeData数据时，通过数据的typeId确定params的种类，作为该条NodeData（Map类）中params的keySet，从用户端接收key的value值，封装params字段值，生成新纪录（具体运行过程中运行过程中会涉及到一个GenerateNodeData的方法，这个方法的传入参数包括typeId、params中的key对应的value值，输出结果为NodeData类型），加入List<NodeData> list中。一个list数据组合成一个flow，save操作和Version更新操作的对象都是这个list
+
+###### 5.3 节点类型参数（NodeTypeParams）接口定义
 
 
 
@@ -130,7 +181,43 @@ public IPage<Flow> listFlow(FlowRequest flowRequest) {
 
 
 
-###### 6.2 参数分组校验
+###### 6.2 数据插入与更新时间的自动填充
+
+```java
+//建立需要自动填充的字段名和和insertFill、updataFill方法间的映射
+@Component
+public class MyMetaObjectHandler implements MetaObjectHandler {
+    @Override
+    public void insertFill(MetaObject metaObject) {
+        this.setFieldValByName("createTime", new Date(), metaObject);
+        this.setFieldValByName("updateTime", new Date(), metaObject);
+    }
+
+    @Override
+    public void updateFill(MetaObject metaObject) {
+        this.setFieldValByName("updateTime", new Date(), metaObject);
+    }
+}
+
+//在实体类中对相应字段进行注解
+@Data
+@TableName("eda_flow")
+public class Flow {
+    private String id;
+
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Date updateTime;
+}
+
+
+```
+
+
+
+###### 6.3 参数分组校验
 
 - 首先建立validation package
 
@@ -174,7 +261,7 @@ public IPage<Flow> listFlow(FlowRequest flowRequest) {
   ```
   
 
-###### 6.3 数据库json格式的数据与javaObject的交互
+###### 6.4 数据库json格式的数据与javaObject的交互
 
 >  以NodeType实体类为例，其中的字段params类型为List<NodeTypeParams>，NodeTypeParams为自定义的实体类
 
@@ -308,9 +395,8 @@ public IPage<Flow> listFlow(FlowRequest flowRequest) {
   
   ```
   
-  
 
-###### 6.4 用java方法代替手写SQL
+###### 6.5 用java方法代替手写SQL
 
 > 当前配置中，手写SQL的方法可以在postman测试通过，但java方法代替SQL的方法会报错，报错信息：错误的SQL语句。
 
