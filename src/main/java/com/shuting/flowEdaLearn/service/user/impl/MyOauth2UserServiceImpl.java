@@ -16,15 +16,15 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class MyOauth2UserServiceImpl extends ServiceImpl<MyOauth2UserMapper, MyOauth2User>
-    implements MyOauth2UserService {
-  @Autowired private DBUserDetailsManager manager;
+        implements MyOauth2UserService {
+    @Autowired private DBUserDetailsManager manager;
 
-  public void saveUserDetails(MyOauth2User oauth2User) {
-    UserDetails userDetails =
-        User.withUsername(oauth2User.getUsername())
-            .password(oauth2User.getPassword())
-            .roles("USER")
-            .build();
-    manager.createUser(userDetails);
-  }
+    public void saveUserDetails(MyOauth2User oauth2User) {
+        UserDetails userDetails =
+                User.withUsername(oauth2User.getUsername())
+                        .password(oauth2User.getPassword())
+                        .roles("USER")
+                        .build();
+        manager.createUser(userDetails);
+    }
 }

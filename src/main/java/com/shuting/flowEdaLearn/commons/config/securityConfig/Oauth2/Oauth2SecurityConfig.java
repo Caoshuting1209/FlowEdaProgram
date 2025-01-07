@@ -40,20 +40,24 @@ public class Oauth2SecurityConfig {
                         oauth.userInfoEndpoint(
                                 userInfo ->
                                         userInfo.userAuthoritiesMapper(userAuthoritiesMapper)
-                                                .userService(userService)));
-        http.formLogin(Customizer.withDefaults());
+                                                .userService(userService))
+                                .successHandler(new MyAuthenticationSuccessHandler()));
+        http.formLogin(
+                form ->
+                        form.successHandler(new MyAuthenticationSuccessHandler()) // 自定义登陆成功返回信息
+                                .failureHandler(
+                                        new MyAuthenticationFailureHandler())); // 自定义登陆失败返回信息);
         http.logout(logout -> logout.logoutSuccessHandler(new MyLogoutSuccessHandler())); // 注销成功处理
         http.exceptionHandling(
                 exception ->
                         exception
-//                                .authenticationEntryPoint(new MyAuthenticationEntryPoint())
-                                .accessDeniedHandler(new MyAccessDeniedHandler())); // 请求未认证的处理
+                                .accessDeniedHandler(new MyAccessDeniedHandler())); // 请求未授权
         http.sessionManagement(
                 session ->
                         session
-                                // 最多允许1个设备同时在线
+                                // 最多允许1个设备同时在线，后登陆的设备会把先前设备挤掉
                                 .maximumSessions(1)
-                                // 后登陆的设备会把先前设备挤掉
+                                //账号登陆多次返回信息
                                 .expiredSessionStrategy(new MySessionInformationExpiredStrategy()));
         // 关闭csrf攻击防御
         http.csrf(csrf -> csrf.disable());

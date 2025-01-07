@@ -1,4 +1,4 @@
-package com.shuting.flowEdaLearn.commons.config.securityConfig.Password_backEnd; // package
+package com.shuting.flowEdaLearn.commons.config.securityConfig.JWT_backEnd; // package
                                                                         // com.shuting.flowEdaOauth.commons.config.securityConfig.backend;
 
 //
@@ -28,6 +28,7 @@ package com.shuting.flowEdaLearn.commons.config.securityConfig.Password_backEnd;
 //        .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class)
 //        .logout(logout -> logout.disable())
 //        .formLogin(form -> form.disable());
+//
 //    return http.build();
 //  }
 //
