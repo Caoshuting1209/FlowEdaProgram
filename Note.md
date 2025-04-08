@@ -114,8 +114,6 @@ public class SpringWebAutoConfig implements WebMvcConfigurer {
 }
 ```
 
-
-
 ##### 5. 完善流程节点业务
 
 ###### 5.1 节点类型（NodeType）接口定义
@@ -124,11 +122,11 @@ public class SpringWebAutoConfig implements WebMvcConfigurer {
 
 ###### 5.2 节点数据（NodeData）接口定义
 
-> 当新建一条NodeData数据时，通过数据的typeId确定params的种类，作为该条NodeData（Map类）中params的keySet，从用户端接收key的value值，封装params字段值，生成新纪录（具体运行过程中运行过程中会涉及到一个GenerateNodeData的方法，这个方法的传入参数包括typeId、params中的key对应的value值，输出结果为NodeData类型），加入List<NodeData> list中。一个list数据组合成一个flow，save操作和Version更新操作的对象都是这个list
+>
+当新建一条NodeData数据时，通过数据的typeId确定params的种类，作为该条NodeData（Map类）中params的keySet，从用户端接收key的value值，封装params字段值，生成新纪录（具体运行过程中运行过程中会涉及到一个GenerateNodeData的方法，这个方法的传入参数包括typeId、params中的key对应的value值，输出结果为NodeData类型），加入List<NodeData>
+list中。一个list数据组合成一个flow，save操作和Version更新操作的对象都是这个list
 
 ###### 5.3 节点类型参数（NodeTypeParams）接口定义
-
-
 
 ##### 6. 版本相关的一些方法更新
 
@@ -181,8 +179,6 @@ public IPage<Flow> listFlow(FlowRequest flowRequest) {
     }
 ```
 
-
-
 ###### 6.2 数据插入与更新时间的自动填充
 
 ```java
@@ -216,8 +212,6 @@ public class Flow {
 
 
 ```
-
-
 
 ###### 6.3 参数分组校验
 
@@ -261,11 +255,10 @@ public class Flow {
         }
     }
   ```
-  
 
 ###### 6.4 数据库json格式的数据与javaObject的交互
 
->  以NodeType实体类为例，其中的字段params类型为List<NodeTypeParams>，NodeTypeParams为自定义的实体类
+> 以NodeType实体类为例，其中的字段params类型为List<NodeTypeParams>，NodeTypeParams为自定义的实体类
 
 - 引入jackson相关依赖
 
@@ -360,7 +353,7 @@ public class Flow {
   }
   
   ```
-  
+
 - 在对应的业务层调用数据转换方法
 
   ```java
@@ -396,7 +389,6 @@ public class Flow {
   
   
   ```
-  
 
 ###### 6.5 用java方法代替手写SQL
 
@@ -425,8 +417,6 @@ private List<NodeData> findByFlowId(String flowId) {
         return findByFlowId(flowId);
 }
 ```
-
-
 
 ### Part2: 认证与鉴权部分
 
@@ -499,8 +489,6 @@ public class MyOauth2UserDetails implements UserDetails {
 }
 ```
 
-
-
 ###### 1.2 构建基于数据库的信息管理器
 
 ```java
@@ -564,8 +552,6 @@ public class DBUserDetailsManager implements UserDetailsManager, UserDetailsPass
 }
 ```
 
-
-
 ###### 1.3 JWT组件（token的生成和解析策略）
 
 ```java
@@ -606,8 +592,6 @@ public class JwtUtil {
     }
 }
 ```
-
-
 
 ###### 1.4 自定义的 JwtAuthenticationFilter
 
@@ -653,8 +637,6 @@ public class JwtUtil {
   }
  }
 ```
-
-
 
 ###### 1.5 WebSecurityConfig
 
@@ -710,26 +692,27 @@ public class JwtUtil {
  }
 ```
 
-
-
 ###### 1.6 自定义LoginService
 
 ```java
+
 @Service
 public class LoginService {
-    @Autowired AuthenticationManager authenticationManager;
-    @Autowired RedisTemplate redisTemplate;
+    @Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
+    RedisTemplate redisTemplate;
 
     public Result<String> login(LoginUser loginUser) {
         String username = loginUser.getUsername();
         String password = loginUser.getPassword();
-      //生成authenticationToken
+        //生成authenticationToken
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username, password);
         try {
-          //authenticationToken与数据库中的信息进行比对
+            //authenticationToken与数据库中的信息进行比对
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
-          //用户名与密码成功匹配后在安全上下文中添加该认证信息
+            //用户名与密码成功匹配后在安全上下文中添加该认证信息
             if (authentication.isAuthenticated()) {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 // 生成token令牌
@@ -759,9 +742,11 @@ public class LoginService {
 ###### 1.7 自定义LoginController
 
 ```java
+
 @RestController
 public class LoginController {
-    @Autowired private LoginService loginService;
+    @Autowired
+    private LoginService loginService;
 
     @CrossOrigin //前后端分离项目中解决跨域请求的注解
     @PostMapping("/login")
@@ -771,14 +756,14 @@ public class LoginController {
 }
 ```
 
-
-
 ###### 1.8 自定义LogoutService
 
 ```java
+
 @Service
 public class LogoutService {
-    @Autowired RedisTemplate redisTemplate;
+    @Autowired
+    RedisTemplate redisTemplate;
 
     public Result<String> logout() {
         // 清空redis信息
@@ -796,9 +781,11 @@ public class LogoutService {
 ###### 1.9 自定义LogoutController
 
 ```java
+
 @RestController
 public class LogoutController {
-    @Autowired private LogoutService logoutService;
+    @Autowired
+    private LogoutService logoutService;
 
     @CrossOrigin
     @GetMapping("/logout")
@@ -808,23 +795,19 @@ public class LogoutController {
 }
 ```
 
-
-
 ###### 1.10 postman测试流程
 
 - "/login"验证用户名密码(body/raw)，获得token
 
 - Header中带token，访问认证后可获取的资源
 
-  
-
 ###### 1.11 小结
 
-> - 首先进行login操作，认证成功后将Authentication存入SecurityContextHolder，并生成token令牌，将其存入redis中，用于后续访问资源（Redis通常用于存储会话信息，减轻服务器的内存负担，或者用于分布式系统的会话共享；而SecurityContextHolder用于在当前线程中保持认证信息，以便快速访问。两者一般可以同时使用。）
-> - 访问资源的过程中需要在Header中携带刚刚生成的token令牌，然后经过SecurityFilterChain进行安全验证。其中，JwtAuthenticationFilter用于校验令牌，从请求头中获取token，然后解析出用户信息，并从redis中进行读取，若读取失败，则直接返回错误信息；若读取成功，则生成新的Authentication存入安全上下文，并且放行该请求
+> -
+首先进行login操作，认证成功后将Authentication存入SecurityContextHolder，并生成token令牌，将其存入redis中，用于后续访问资源（Redis通常用于存储会话信息，减轻服务器的内存负担，或者用于分布式系统的会话共享；而SecurityContextHolder用于在当前线程中保持认证信息，以便快速访问。两者一般可以同时使用。）
+> -
+访问资源的过程中需要在Header中携带刚刚生成的token令牌，然后经过SecurityFilterChain进行安全验证。其中，JwtAuthenticationFilter用于校验令牌，从请求头中获取token，然后解析出用户信息，并从redis中进行读取，若读取失败，则直接返回错误信息；若读取成功，则生成新的Authentication存入安全上下文，并且放行该请求
 > - 进行logout操作的逻辑：清除redis中对应用户信息，与登陆逻辑正好相反。登出操作后，令牌失效，无法再访问资源。
-
-
 
 ##### 2. 前端用户名密码登陆+OAuth2第三方登陆(以github为例)
 
@@ -845,8 +828,6 @@ spring:
               client-id: Ov23liHthNDpsR6Efdi4
               client-secret: ffd78c1469c885b8da5247a06c9becf9e09a6767
 ```
-
-
 
 ###### 2.4 Oauth2SecurityConfig
 
@@ -919,8 +900,6 @@ public class Oauth2SecurityConfig {
 }
 ```
 
-
-
 ###### 2.5 为新登陆用户授权（Oauth2第三方登录）
 
 ```java
@@ -934,8 +913,6 @@ public class GrantedAuthoritiesMapperImpl implements GrantedAuthoritiesMapper {
         return grantedAuthorities;
     }
 ```
-
-
 
 ###### 2.6 建立第三方登录信息实体类
 
@@ -1004,8 +981,6 @@ public class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
     }
 }
 ```
-
-
 
 ###### 2.9 小结
 

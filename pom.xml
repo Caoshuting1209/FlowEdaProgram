@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.shuting</groupId>
-    <artifactId>flowEdaLearn</artifactId>
+    <artifactId>flowEdaProgram</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>flowEdaLearn</name>
     <description>flowEdaLearn</description>
