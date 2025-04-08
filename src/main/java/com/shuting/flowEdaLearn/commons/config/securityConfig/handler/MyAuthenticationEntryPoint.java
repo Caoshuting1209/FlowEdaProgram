@@ -1,4 +1,4 @@
-package com.shuting.flowEdaLearn.commons.config.securityConfig.Oauth2.handler;
+package com.shuting.flowEdaLearn.commons.config.securityConfig.handler;
 
 import com.alibaba.fastjson2.JSON;
 

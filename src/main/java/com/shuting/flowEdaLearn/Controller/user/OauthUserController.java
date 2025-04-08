@@ -21,6 +21,7 @@ public class OauthUserController {
     @Autowired private MyOauth2UserServiceImpl service;
 
     // 获取当前用户信息
+    @CrossOrigin
     @GetMapping("/information")
     public Map index() {
         SecurityContext context = SecurityContextHolder.getContext();
@@ -35,6 +36,7 @@ public class OauthUserController {
     }
 
     // 获取用户列表
+    @CrossOrigin
     @GetMapping("/list")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')") // 在开启方法授权的情况下，这里可以用于校验请求是否被授权
     public List<MyOauth2User> getOauthUser() {
@@ -42,6 +44,7 @@ public class OauthUserController {
     }
 
     // 新增用户
+    @CrossOrigin
     @PostMapping("/add")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     // 没有授权校验默认对所有用户授权

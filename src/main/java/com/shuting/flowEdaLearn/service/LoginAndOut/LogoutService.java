@@ -1,4 +1,4 @@
-package com.shuting.flowEdaLearn.service.LoginAndOut_backEnd;
+package com.shuting.flowEdaLearn.service.LoginAndOut;
 
 import com.shuting.flowEdaLearn.commons.http.Result;
 import com.shuting.flowEdaLearn.entity.user.MyOauth2UserDetails;

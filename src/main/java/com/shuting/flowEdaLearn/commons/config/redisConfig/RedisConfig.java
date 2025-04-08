@@ -20,5 +20,4 @@ public class RedisConfig {
         template.setKeySerializer(new StringRedisSerializer());
         return template;
     }
-    ;
 }

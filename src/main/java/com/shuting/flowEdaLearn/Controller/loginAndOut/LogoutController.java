@@ -1,7 +1,7 @@
-package com.shuting.flowEdaLearn.Controller.loginAndOut_backEnd;
+package com.shuting.flowEdaLearn.Controller.loginAndOut;
 
 import com.shuting.flowEdaLearn.commons.http.Result;
-import com.shuting.flowEdaLearn.service.LoginAndOut_backEnd.LogoutService;
+import com.shuting.flowEdaLearn.service.LoginAndOut.LogoutService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

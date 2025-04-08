@@ -654,7 +654,7 @@ public class JwtUtil {
  }
 ```
 
-###### 
+
 
 ###### 1.5 WebSecurityConfig
 
@@ -675,7 +675,7 @@ public class JwtUtil {
     return new ProviderManager(provider);
   }
 
-   //前后端分离，表单登陆登出功能禁用
+   //前后端分离，表单登陆、登出功能禁用
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(
@@ -812,7 +812,7 @@ public class LogoutController {
 
 ###### 1.10 postman测试流程
 
-- "/login"验证用户名密码，获得token
+- "/login"验证用户名密码(body/raw)，获得token
 
 - Header中带token，访问认证后可获取的资源
 
