@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: flowEdaLearn
+    name: flowEdaProgram
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/flow_eda?useSSL=false&serverTimezone=GMT%2b8
@@ -18,6 +18,6 @@ spring:
             client-secret: ffd78c1469c885b8da5247a06c9becf9e09a6767
 
 mybatis-plus:
-  type-aliases-package: com.shuting.flowEdaLearn.entity
+  type-aliases-package: com.shuting.flowEdaProgram.entity
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

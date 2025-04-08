@@ -3,8 +3,7 @@ package com.shuting.flowEdaProgram.commons.config.typeHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuting.flowEdaProgram.entity.flow.NodeTypeParams;
-
+import com.shuting.flowEdaProgram.flow.entity.NodeTypeParams;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 

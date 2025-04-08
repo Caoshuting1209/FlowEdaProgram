@@ -8,7 +8,7 @@
 
 - ### Operation flow
 
-  > #### Each 「nodeType」 has a specified set of 「nodeTypeParams」, which can be entered by the user. By combining a series of 「nodeTypes」, a 「nodedata」 is generated, which is used to determine the transaction flow.
+  > #### Each ***nodeType*** has a specified set of  ***nodeTypeParams***, which can be entered by the user and generate a ***nodeData***.By combining a series of ***nodeDatas***, a ***flow*** is generated, which is used to determine the transaction flow.
 
 - ### Authentication and authentication
 
@@ -16,13 +16,17 @@
 
 ## Module
 
-- #### Flow-eda-commons: Common configuration classes, exception classes, and constant classes.
+- #### Flow-eda-commons: Common configuration classes, exception classes, constant classes, and validation groups
 
-- #### Flow-eda-
+- #### Flow-eda-security:  User management (authentication and authentication module)
+
+- #### Flow-eda-flow: CRUD of flows
+
+- #### Flow-eda-utils
 
 ## Feature
 
-- #### The entire process running engine is implemented at the back end, and only lightweight front end is needed.
+- #### The entire process is implemented at the back end, and only lightweight front end is needed.
 
 - #### Multithreaded processing, parallel and serial processes are supported.
 
