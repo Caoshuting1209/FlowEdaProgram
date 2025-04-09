@@ -52,4 +52,6 @@
 
 - #### SpringSecurity + Oauth2: Authentication and authentication framework
 
+- #### Knife4j: Enhanced version of Swagger UI to simplify API documentation generation and presentation
+
 ## System architecture diagram

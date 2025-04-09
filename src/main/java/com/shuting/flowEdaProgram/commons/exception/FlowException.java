@@ -2,6 +2,8 @@ package com.shuting.flowEdaProgram.commons.exception;
 
 import lombok.Data;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Data
